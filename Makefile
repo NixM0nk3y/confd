@@ -35,6 +35,9 @@ ARCH ?= $(BUILDARCH)
 ifeq ($(ARCH),aarch64)
         override ARCH=arm64
 endif
+ifeq ($(ARCH),armv7)
+        override ARCH=arm
+endif
 ifeq ($(ARCH),x86_64)
     override ARCH=amd64
 endif
@@ -45,11 +48,11 @@ GO_BUILD_VER?=v0.17
 # Select which release branch to test.
 RELEASE_BRANCH?=master
 
-CALICO_BUILD = calico/go-build:$(GO_BUILD_VER)
+CALICO_BUILD = nixm0nk3y/go-build:latest
 
 CALICOCTL_VER=master
 CALICOCTL_CONTAINER_NAME=calico/ctl:$(CALICOCTL_VER)-$(ARCH)
-K8S_VERSION?=v1.10.4
+K8S_VERSION?=v1.11.2
 ETCD_VER?=v3.3.7
 BIRD_VER=v0.3.1
 LOCAL_IP_ENV?=$(shell ip route get 8.8.8.8 | head -1 | awk '{print $$7}')
@@ -75,7 +78,7 @@ DOCKER_GO_BUILD := mkdir -p .go-pkg-cache && \
                               --net=host \
                               $(EXTRA_DOCKER_ARGS) \
                               -e LOCAL_USER_ID=$(LOCAL_USER_ID) \
-                              -e GOARCH=$(ARCH) \
+                              -e GOARCH=$(ARCH) -e GOARM=7 \
                               -v ${CURDIR}:/go/src/$(PACKAGE_NAME):rw \
                               -v ${CURDIR}/.go-pkg-cache:/go/pkg:rw \
                               -w /go/src/$(PACKAGE_NAME) \
